@@ -34,6 +34,36 @@ if (-not $env:SHADOW_DATABASE_URL -or $env:SHADOW_DATABASE_URL.Trim() -eq "") {
     $env:SHADOW_DATABASE_URL = "postgresql://antivenom:antivenom@localhost:5432/antivenom_shadow"
 }
 
+# Wait until Postgres is ready to accept connections
+Write-Host "🔎 Waiting for Postgres readiness..." -ForegroundColor Yellow
+$maxAttempts = 30
+for ($i = 1; $i -le $maxAttempts; $i++) {
+    docker exec postgres pg_isready -h localhost -U antivenom -d postgres -q 2>$null
+    if ($LASTEXITCODE -eq 0) { break }
+    Start-Sleep -Seconds 1
+    if ($i -eq $maxAttempts) {
+        Write-Host "❌ Postgres not ready after $maxAttempts seconds." -ForegroundColor Red
+        exit 1
+    }
+}
+
+# Ensure the shadow database exists (Prisma does not create it automatically)
+Write-Host "🛠️  Ensuring shadow database exists..." -ForegroundColor Yellow
+# First attempt to create it (idempotent: will fail if it exists)
+docker exec -e PGPASSWORD=antivenom postgres createdb -h localhost -U antivenom antivenom_shadow 2>$null
+if ($LASTEXITCODE -ne 0) {
+    # If creation failed, verify if it already exists
+    $dbExists = docker exec -e PGPASSWORD=antivenom postgres psql -h localhost -U antivenom -d postgres -tA -c "SELECT 1 FROM pg_database WHERE datname = 'antivenom_shadow'" 2>$null
+    if ($LASTEXITCODE -ne 0) {
+        Write-Host "❌ Failed to query Postgres for shadow DB existence." -ForegroundColor Red
+        exit 1
+    }
+    if ($null -eq $dbExists -or $dbExists.ToString().Trim() -ne "1") {
+        Write-Host "❌ Failed to create shadow database 'antivenom_shadow'." -ForegroundColor Red
+        exit 1
+    }
+}
+
 pnpm db:generate
 if ($LASTEXITCODE -ne 0) {
     Write-Host "❌ Failed to generate Prisma client." -ForegroundColor Red
