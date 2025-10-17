@@ -1,28 +1,6 @@
-# AntiVenom - Quick Start Guide
+# AntiVenom - 🚀 Quick Start Guide (3 Steps)
 
-## ✅ System Status
-
-Your AntiVenom system has been fully implemented and is ready to use!
-
-### What's Been Built
-
-- ✅ **Complete Next.js 15 Application** with TypeScript
-- ✅ **All API Routes** (threats, test-attack, defenses, stats)
-- ✅ **Full UI Components** (Threat Monitor, Defense Lab, Live Stream, Stats Cards)
-- ✅ **OpenAI GPT-4o Integration** for validation and defense generation
-- ✅ **Redpanda Streaming** via kafkajs
-- ✅ **Docker Compose** configuration for Redpanda
-- ✅ **Build Verified** - No errors
-
-### Services Running
-
-1. **Redpanda** - ✅ Running on port 19092
-2. **Redpanda Console** - ✅ Running on port 8080
-3. **Next.js Dev Server** - ✅ Starting on port 3000
-
-## 🚀 Quick Start (3 Steps)
-
-### Step 1: Access the Application
+## Step 1: Access the Application
 
 Open your browser and navigate to:
 
@@ -30,7 +8,7 @@ Open your browser and navigate to:
 http://localhost:3000
 ```
 
-### Step 2: Initialize the System
+## Step 2: Initialize the System
 
 Click the **"Initialize System"** button in the top right corner. This will:
 
@@ -38,14 +16,14 @@ Click the **"Initialize System"** button in the top right corner. This will:
 - Populate the stats dashboard
 - Enable the Threat Monitor and Defense Lab
 
-### Step 3: Test the Complete Flow
+## Step 3: Test the Complete Flow
 
 1. Navigate to the **"Defense Lab"** tab
 2. Select any threat from the left panel (e.g., "DAN 11.0 Jailbreak")
 3. Click **"Test Attack & Generate Defense"**
 4. Watch as:
-   - GPT-4o-mini validates the attack (~8 seconds)
-   - GPT-4o generates Python defense code (~12 seconds)
+   - GPT-5-mini validates the attack (~8 seconds)
+   - GPT-5 generates Python defense code (~12 seconds)
    - Defense is automatically streamed to Redpanda
 5. View the results displayed in beautiful alerts with:
    - Validation details and confidence score
@@ -93,7 +71,7 @@ docker exec redpanda rpk topic consume defense-rules --brokers localhost:9092
 
 - Left panel: Select threats to test
 - Right panel: Testing interface and results
-- Real-time GPT-4o analysis
+- Real-time GPT-5 analysis
 - Generated defense code with syntax highlighting
 - Deployment confirmation
 
@@ -135,12 +113,12 @@ Check the browser console (F12) for errors. Verify:
 - Development server is running on port 3000
 - No CORS or network errors
 
-### GPT-4o API Errors
+### GPT-5 API Errors
 
 1. Open `.env.local` and verify `OPENAI_API_KEY` is set correctly
 2. Check your OpenAI account has:
    - Available credits
-   - Access to `gpt-4o` and `gpt-4o-mini` models
+   - Access to `gpt-5` and `gpt-5-mini` models
 3. View API logs in the terminal running `pnpm dev`
 
 ### Redpanda Connection Issues
@@ -186,7 +164,7 @@ pnpm dev
 4. **Defense Lab** (30 sec)
    - Select "DAN 11.0 Jailbreak"
    - Click test button
-   - **Wait for GPT-4o to process** (builds anticipation!)
+   - **Wait for GPT-5 to process** (builds anticipation!)
    - Show validation result
    - Show generated defense code
    - Point out deployment confirmation
@@ -216,7 +194,7 @@ antivenom/
 │       ├── api/client.ts         # Frontend API
 │       ├── data/store.ts         # In-memory DB
 │       └── integrations/
-│           ├── openai.ts         # GPT-4o integration
+│           ├── openai.ts         # GPT-5 integration
 │           └── redpanda.ts       # Kafka streaming
 ├── docker-compose.yml        # Redpanda setup
 └── .env.local               # API keys
@@ -226,13 +204,13 @@ antivenom/
 
 ### 1. Autonomous Threat Validation
 
-- GPT-4o-mini analyzes attack patterns
+- GPT-5-mini analyzes attack patterns
 - Returns effectiveness, attack type, and confidence
 - Explains why attacks work or fail
 
 ### 2. Intelligent Defense Generation
 
-- GPT-4o creates Python defense functions
+- GPT-5 creates Python defense functions
 - Regex-based pattern matching
 - Production-ready code with comments
 
@@ -276,7 +254,7 @@ antivenom/
 
 Your AntiVenom system is fully functional and ready to demo. The complete pipeline is working:
 
-**Threat Discovery → GPT-4o Validation → Defense Generation → Redpanda Streaming**
+**Threat Discovery → GPT-5 Validation → Defense Generation → Redpanda Streaming**
 
 Open http://localhost:3000 and start testing!
 

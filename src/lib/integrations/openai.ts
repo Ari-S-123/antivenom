@@ -15,7 +15,7 @@ import type { ValidationResult, AttackType } from "@/lib/types";
  */
 export async function validateAttack(pattern: string): Promise<ValidationResult> {
   const { object } = await generateObject({
-    model: openai("gpt-4o-mini"),
+    model: openai("gpt-5-mini"),
     schema: z.object({
       is_effective: z.boolean().describe("Whether the attack is effective"),
       attack_type: z
@@ -60,7 +60,7 @@ export async function generateDefense(
   description: string;
 }> {
   const { object } = await generateObject({
-    model: openai("gpt-4o"),
+    model: openai("gpt-5"),
     schema: z.object({
       defense_code: z.string().describe("Python function code to detect and block the attack"),
       confidence: z.number().min(0).max(1).describe("Confidence in defense effectiveness (0-1)"),

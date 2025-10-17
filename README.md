@@ -14,7 +14,7 @@ Built for "The Future of Agents" Hackathon (October 17, 2025)
 
 - **Framework**: Next.js 15 with App Router
 - **Language**: TypeScript (100%)
-- **AI SDK**: Vercel AI SDK with GPT-4o & GPT-4o-mini
+- **AI SDK**: Vercel AI SDK with GPT-5 & GPT-5-mini
 - **Streaming**: kafkajs + Redpanda
 - **UI**: Shadcn UI + Tailwind CSS
 - **Web Scraping**: Apify Client
@@ -23,7 +23,7 @@ Built for "The Future of Agents" Hackathon (October 17, 2025)
 
 1. **Node.js** 20+ and **pnpm**
 2. **Docker** for running Redpanda
-3. **OpenAI API Key** with access to GPT-4o models
+3. **OpenAI API Key** with access to GPT-5 models
 
 ## 🔧 Setup Instructions
 
@@ -130,7 +130,7 @@ Navigate to the **Live Stream** tab and click **"Open Redpanda Console"** to see
        │                   │                  │
        ▼                   ▼                  ▼
 ┌──────────────┐  ┌────────────────┐  ┌──────────────┐
-│   GitHub     │  │   GPT-4o API   │  │  Redpanda    │
+│   GitHub     │  │   GPT-5 API   │  │  Redpanda    │
 │   Repos,     │  │   (OpenAI)     │  │  Topic:      │
 │   Reddit     │  │                │  │  "defenses"  │
 └──────────────┘  └────────────────┘  └──────────────┘
@@ -178,13 +178,13 @@ antivenom/
 
 ### 2. GPT-5 Validation
 
-- Uses GPT-4o-mini for fast attack effectiveness analysis
+- Uses GPT-5-mini for fast attack effectiveness analysis
 - Returns confidence scores and attack classifications
 - Explains why attacks work or fail
 
 ### 3. Autonomous Defense Generation
 
-- GPT-4o generates Python defense code automatically
+- GPT-5 generates Python defense code automatically
 - Regex-based pattern matching for attack detection
 - Production-ready `should_block()` functions
 
@@ -244,7 +244,7 @@ docker-compose restart
 ### GPT-5 API Errors
 
 - Verify `OPENAI_API_KEY` is set in `.env.local`
-- Check API key has access to `gpt-4o` and `gpt-4o-mini` models
+- Check API key has access to `gpt-5` and `gpt-5-mini` models
 - View API logs in the terminal running `pnpm dev`
 
 ### Build Errors
@@ -258,8 +258,8 @@ pnpm dev
 
 ## 📊 Performance
 
-- **Threat Validation**: 8-10 seconds (GPT-4o-mini)
-- **Defense Generation**: 12-15 seconds (GPT-4o)
+- **Threat Validation**: 8-10 seconds (GPT-5-mini)
+- **Defense Generation**: 12-15 seconds (GPT-5)
 - **Redpanda Latency**: <100ms
 - **UI Refresh**: 5 seconds (stats), 10 seconds (threats)
 
