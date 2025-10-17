@@ -8,7 +8,7 @@
 import { useState, useEffect } from "react";
 import { Tabs, TabsContent, TabsList, TabsTrigger } from "@/components/ui/tabs";
 import { Button } from "@/components/ui/button";
-import { Play } from "lucide-react";
+import { Sprout, Play } from "lucide-react";
 import { ThreatMonitor } from "@/components/threat-monitor";
 import { DefenseLab } from "@/components/defense-lab";
 import { LiveStream } from "@/components/live-stream";
@@ -97,7 +97,7 @@ export default function Dashboard() {
             <div className="flex gap-2">
               {!seeded && (
                 <Button onClick={handleSeed} size="lg" variant="outline" aria-label="Initialize System">
-                  <Play className="h-6 w-6" /> Initialize System
+                  <Sprout className="h-6 w-6" /> Seed
                 </Button>
               )}
               <Button
@@ -107,7 +107,7 @@ export default function Dashboard() {
                 disabled={ingesting}
                 aria-label="Ingest Live Threats"
               >
-                {ingesting ? "Ingesting..." : "Ingest Live Threats"}
+                <Play className="h-6 w-6" /> {ingesting ? "Ingesting..." : "Ingest Live Threats"}
               </Button>
             </div>
           </div>
