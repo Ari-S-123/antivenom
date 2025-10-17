@@ -48,7 +48,7 @@ REDPANDA_BROKERS=localhost:19092
 
 # Optional (for live scraping)
 APIFY_API_TOKEN=your_apify_token_here
-APIFY_ACTOR_ID=apify/web-scraper
+# APIFY_ACTOR_ID=apify~website-content-crawler  # Optional: override default actor
 ```
 
 ### 3. Quick Setup (Recommended)
@@ -443,6 +443,9 @@ docker logs redpanda
 - Verify `APIFY_API_TOKEN` is set in `.env.local`
 - System works without Apify (use seed data instead)
 - Check Apify account limits at console.apify.com
+- Default actor is `apify~website-content-crawler` (modern, reliable)
+- To use a custom actor, set `APIFY_ACTOR_ID` environment variable
+- If you see "Field input.startUrls is required" error, the actor may require different input parameters
 
 ### Build Errors
 

@@ -18,6 +18,7 @@ const DEFAULT_SOURCES: string[] = [
 
 /**
  * Run Apify actor to crawl sources and return raw items
+ * Uses the Website Content Crawler actor which is more reliable and modern
  * @param {string[]} sources - URLs to scrape (defaults to DEFAULT_SOURCES)
  * @returns {Promise<any[]>} Array of scraped items
  * @throws {Error} If APIFY_API_TOKEN is not set or actor fails
@@ -28,10 +29,12 @@ export async function runThreatScraper(sources: string[] = DEFAULT_SOURCES): Pro
     throw new Error("APIFY_API_TOKEN environment variable not set");
   }
 
-  const actorId = process.env.APIFY_ACTOR_ID || "apify/web-scraper";
+  // Use Website Content Crawler which is more modern and has simpler input requirements
+  // Alternative: use APIFY_ACTOR_ID env var to override
+  const actorId = process.env.APIFY_ACTOR_ID || "apify~website-content-crawler";
   const client = new ApifyClient({ token });
 
-  console.log(`[Apify] Starting scraper for ${sources.length} sources`);
+  console.log(`[Apify] Starting scraper for ${sources.length} sources using ${actorId}`);
 
   // Validate sources before triggering the actor
   const sanitizedSources = Array.isArray(sources)
@@ -41,19 +44,55 @@ export async function runThreatScraper(sources: string[] = DEFAULT_SOURCES): Pro
     throw new Error("No sources provided for Apify run");
   }
 
-  const run = await client.actor(actorId).call({
-    input: {
-      startUrls: sanitizedSources.map((url) => ({ url })),
-      maxCrawlDepth: 1,
-      maxRequestsPerCrawl: 30
-    }
+  // Format startUrls according to Apify standards
+  const startUrls = sanitizedSources.map((url) => ({ url }));
+
+  console.log(`[Apify] Input configuration:`, {
+    actorId,
+    urlCount: startUrls.length,
+    urls: startUrls
   });
 
-  const list = await client.dataset(run.defaultDatasetId).listItems();
-  const items = (list?.items ?? []) as unknown as ApifyDatasetItem[];
-  console.log(`[Apify] Scraper completed with ${items.length} items`);
+  try {
+    const run = await client.actor(actorId).call({
+      startUrls,
+      maxCrawlDepth: 1,
+      maxCrawlPages: 30,
+      // Additional configuration for better results
+      crawlerType: "cheerio",
+      maxRequestsPerMinute: 60,
+      maxSessionRotations: 10
+    });
 
-  return items || [];
+    if (!run || !run.defaultDatasetId) {
+      throw new Error("Actor run failed to create dataset");
+    }
+
+    console.log(`[Apify] Actor run completed. Dataset ID: ${run.defaultDatasetId}`);
+
+    const list = await client.dataset(run.defaultDatasetId).listItems();
+    const items = (list?.items ?? []) as unknown as ApifyDatasetItem[];
+    console.log(`[Apify] Scraper completed with ${items.length} items`);
+
+    return items || [];
+  } catch (error) {
+    console.error(`[Apify] Actor run failed:`, error);
+
+    // Provide more detailed error information
+    if (error instanceof Error) {
+      const errorDetails = {
+        message: error.message,
+        name: error.name,
+        stack: error.stack
+      };
+      console.error(`[Apify] Error details:`, errorDetails);
+
+      // Re-throw with more context
+      throw new Error(`Apify actor ${actorId} failed: ${error.message}`);
+    }
+
+    throw error;
+  }
 }
 
 /**
