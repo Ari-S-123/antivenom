@@ -33,9 +33,17 @@ export async function runThreatScraper(sources: string[] = DEFAULT_SOURCES): Pro
 
   console.log(`[Apify] Starting scraper for ${sources.length} sources`);
 
+  // Validate sources before triggering the actor
+  const sanitizedSources = Array.isArray(sources)
+    ? sources.filter((u) => typeof u === "string" && u.trim() !== "")
+    : [];
+  if (sanitizedSources.length === 0) {
+    throw new Error("No sources provided for Apify run");
+  }
+
   const run = await client.actor(actorId).call({
-    runInput: {
-      startUrls: sources.map((url) => ({ url })),
+    input: {
+      startUrls: sanitizedSources.map((url) => ({ url })),
       maxCrawlDepth: 1,
       maxRequestsPerCrawl: 30
     }
