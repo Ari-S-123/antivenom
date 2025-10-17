@@ -14,7 +14,7 @@ function resolveDatabaseUrl(): string {
   const configuredUrl = process.env.DATABASE_URL;
   const defaultLocalUrl = "postgresql://antivenom:antivenom@localhost:5432/antivenom";
 
-  const hasValidProtocol = (url: string): boolean => /^postgres(ql)?:\/\//.test(url);
+  const hasValidProtocol = (url: string): boolean => /^(?:prisma\+)?postgres(?:ql)?:\/\//.test(url);
 
   if (typeof configuredUrl !== "string" || configuredUrl.trim() === "") {
     if (process.env.NODE_ENV !== "production") {
@@ -29,7 +29,7 @@ function resolveDatabaseUrl(): string {
   if (!hasValidProtocol(configuredUrl)) {
     if (process.env.NODE_ENV !== "production") {
       console.warn(
-        "[Prisma] DATABASE_URL has an invalid protocol. Expected 'postgresql://' or 'postgres://'. Falling back to local Postgres."
+        "[Prisma] DATABASE_URL has an invalid protocol. Expected 'postgresql://', 'postgres://', or 'prisma+postgres://'. Falling back to local Postgres."
       );
     }
     process.env.DATABASE_URL = defaultLocalUrl;

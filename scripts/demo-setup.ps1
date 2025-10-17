@@ -21,6 +21,19 @@ Start-Sleep -Seconds 10
 # Run Prisma migrations
 Write-Host ""
 Write-Host "🗄️  Running database migrations..." -ForegroundColor Yellow
+if (-not $env:DATABASE_URL -or $env:DATABASE_URL.Trim() -eq "") {
+    # Prisma Data Proxy URLs (prisma+postgres://) are not usable by migrate; use direct URLs locally
+    $env:DATABASE_URL = "postgresql://antivenom:antivenom@localhost:5432/antivenom"
+}
+
+# Ensure direct URL and shadow DB URL for Prisma migrate (even if DATABASE_URL is prisma+postgres)
+if (-not $env:DIRECT_URL -or $env:DIRECT_URL.Trim() -eq "") {
+    $env:DIRECT_URL = "postgresql://antivenom:antivenom@localhost:5432/antivenom"
+}
+if (-not $env:SHADOW_DATABASE_URL -or $env:SHADOW_DATABASE_URL.Trim() -eq "") {
+    $env:SHADOW_DATABASE_URL = "postgresql://antivenom:antivenom@localhost:5432/antivenom_shadow"
+}
+
 pnpm db:generate
 if ($LASTEXITCODE -ne 0) {
     Write-Host "❌ Failed to generate Prisma client." -ForegroundColor Red
