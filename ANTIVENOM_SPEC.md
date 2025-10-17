@@ -2,7 +2,7 @@
 
 **Project**: AntiVenom - Autonomous AI Defense Platform  
 **Duration**: 5 hours  
-**Hackathon**: SF Hack (October 19-20, 2025)  
+**Hackathon**: The Future of Agents (October 17, 2025)  
 **Sponsors**: Apify ✓ | OpenAI ✓ | Redpanda ✓  
 **Stack**: Next.js 15 + TypeScript + Vercel AI SDK
 
@@ -11,22 +11,6 @@
 ## Executive Summary
 
 AntiVenom autonomously monitors security research for new prompt injection attacks, validates their effectiveness using GPT-5, generates defensive code automatically, and streams those defenses in real-time via Redpanda. The system compresses a weeks-long manual security process into minutes.
-
----
-
-## Hackathon-Winning Strategy
-
-**What Actually Wins**:
-
-1. **Polished Visual Demo** (40%): Modern UI that impresses immediately
-2. **Clear Problem-Solution** (40%): Real problem + compelling narrative
-3. **Technical Credibility** (20%): Enough backend to prove it works
-
-**Time Allocation**:
-
-- **2.5 hours**: Next.js UI with Shadcn components
-- **1.5 hours**: Next.js API routes + sponsor integrations
-- **1 hour**: Demo polish + presentation prep
 
 ---
 
@@ -1846,33 +1830,3 @@ pnpm add zod
 - Add "Recently Deployed" feed showing last 5 defenses
 - Improve Redpanda visualization with charts
 - Add attack type breakdown chart
-
-### Critical Success Factors
-
-1. ✅ GPT-5 calls return valid JSON (test before demo)
-2. ✅ Redpanda Console shows messages (visual proof)
-3. ✅ UI loads without errors (check browser console)
-4. ✅ Demo flows smoothly (practice 3x)
-5. ✅ All 3 sponsors clearly used (mention by name)
-
----
-
-## Why "AntiVenom"?
-
-The name perfectly captures the system's purpose through a biological metaphor. Just as antivenom neutralizes venom **injections** in the body by introducing antibodies, AntiVenom neutralizes prompt **injections** in AI systems by introducing defensive code. The metaphor extends further: antivenom is created by exposing organisms to small amounts of venom and harvesting the resulting antibodies, while AntiVenom exposes test agents to attack patterns and generates defensive rules. Both systems learn from exposure to create targeted, effective protection.
-
-Alternative taglines:
-
-- "Neutralizing prompt injection attacks"
-- "Automated immunity for AI agents"
-- "Your AI's immune system"
-
----
-
-**Good luck! This spec is battle-tested, the tools integrate perfectly, and the demo will impress.**
-
----
-
-**Version**: 3.0 - Full TypeScript Stack  
-**Updated**: October 2025  
-**Status**: Ready for implementation
