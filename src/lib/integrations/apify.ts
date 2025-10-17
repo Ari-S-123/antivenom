@@ -54,15 +54,50 @@ export async function runThreatScraper(sources: string[] = DEFAULT_SOURCES): Pro
   });
 
   try {
-    const run = await client.actor(actorId).call({
-      startUrls,
-      maxCrawlDepth: 1,
-      maxCrawlPages: 30,
-      // Additional configuration for better results
-      crawlerType: "cheerio",
-      maxRequestsPerMinute: 60,
-      maxSessionRotations: 10
-    });
+    // Determine which actor is being used and configure input accordingly
+    const isWebScraper = actorId.includes("web-scraper");
+
+    let input: Record<string, any>;
+
+    if (isWebScraper) {
+      // Web Scraper requires a pageFunction to extract data
+      input = {
+        startUrls,
+        linkSelector: "a[href]",
+        pageFunction: async ({ request, $, log }: any) => {
+          // Extract text content from the page
+          const title = $("title").text() || "";
+          const bodyText = $("body").text() || "";
+
+          // Return structured data
+          return {
+            url: request.url,
+            title,
+            text: bodyText,
+            crawledAt: new Date().toISOString()
+          };
+        },
+        proxyConfiguration: {
+          useApifyProxy: true
+        },
+        maxCrawlDepth: 1,
+        maxCrawlPages: 30,
+        maxRequestsPerMinute: 60
+      };
+    } else {
+      // Website Content Crawler has simpler input requirements
+      input = {
+        startUrls,
+        maxCrawlDepth: 1,
+        maxCrawlPages: 30,
+        crawlerType: "cheerio",
+        maxRequestsPerMinute: 60,
+        maxSessionRotations: 10
+      };
+    }
+
+    console.log(`[Apify] Calling actor ${actorId} with input configuration`);
+    const run = await client.actor(actorId).call(input);
 
     if (!run || !run.defaultDatasetId) {
       throw new Error("Actor run failed to create dataset");
