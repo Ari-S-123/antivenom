@@ -66,14 +66,14 @@ export function DefenseLab() {
   return (
     <div className="grid grid-cols-1 lg:grid-cols-2 gap-6">
       {/* Left: Select Threat */}
-      <Card className="bg-slate-800 border-slate-700">
+      <Card>
         <CardHeader>
-          <CardTitle className="text-white">Select Threat</CardTitle>
-          <CardDescription className="text-slate-400">Choose an attack to validate</CardDescription>
+          <CardTitle>Select Threat</CardTitle>
+          <CardDescription>Choose an attack to validate</CardDescription>
         </CardHeader>
         <CardContent className="space-y-2 max-h-[600px] overflow-y-auto">
           {threats.length === 0 ? (
-            <div className="text-center text-slate-400 py-8">No threats available. Initialize system first.</div>
+            <div className="text-center text-muted-foreground py-8">No threats available. Initialize system first.</div>
           ) : (
             threats.map((t) => (
               <Button
@@ -88,9 +88,9 @@ export function DefenseLab() {
                 </div>
                 {t.tested &&
                   (t.effective ? (
-                    <CheckCircle className="h-4 w-4 text-green-400 flex-shrink-0 ml-2" />
+                    <CheckCircle className="h-4 w-4 text-primary flex-shrink-0 ml-2" />
                   ) : (
-                    <XCircle className="h-4 w-4 text-slate-500 flex-shrink-0 ml-2" />
+                    <XCircle className="h-4 w-4 text-muted-foreground flex-shrink-0 ml-2" />
                   ))}
               </Button>
             ))
@@ -99,17 +99,17 @@ export function DefenseLab() {
       </Card>
 
       {/* Right: Test & Results */}
-      <Card className="bg-slate-800 border-slate-700">
+      <Card>
         <CardHeader>
-          <CardTitle className="text-white">Test & Generate</CardTitle>
-          <CardDescription className="text-slate-400">GPT-5 validates and creates defenses</CardDescription>
+          <CardTitle>Test & Generate</CardTitle>
+          <CardDescription>GPT-5 validates and creates defenses</CardDescription>
         </CardHeader>
         <CardContent className="space-y-4">
           {selected ? (
             <>
-              <div className="bg-slate-950 p-4 rounded-md">
-                <div className="text-sm font-semibold text-slate-300 mb-2">Attack Pattern:</div>
-                <code className="text-sm text-amber-300 font-mono block whitespace-pre-wrap">
+              <div className="bg-muted p-4 rounded-md border">
+                <div className="text-sm font-semibold text-foreground mb-2">Attack Pattern:</div>
+                <code className="text-sm text-destructive font-mono block whitespace-pre-wrap">
                   {selected.attack_pattern}
                 </code>
               </div>
@@ -131,22 +131,18 @@ export function DefenseLab() {
               {result && (
                 <div className="space-y-4 animate-in fade-in duration-500">
                   {/* Validation Result */}
-                  <Alert
-                    className={
-                      result.validation.is_effective ? "bg-red-950 border-red-800" : "bg-slate-950 border-slate-700"
-                    }
-                  >
+                  <Alert variant={result.validation.is_effective ? "destructive" : "default"}>
                     <AlertDescription>
                       <div className="flex items-center justify-between mb-2">
-                        <span className="font-semibold text-white">Validation</span>
+                        <span className="font-semibold text-foreground">Validation</span>
                         <Badge variant={result.validation.is_effective ? "destructive" : "secondary"}>
                           {result.validation.is_effective ? "Effective" : "Ineffective"}
                         </Badge>
                       </div>
-                      <p className="text-sm text-slate-300 mb-2">{result.validation.explanation}</p>
+                      <p className="text-sm mb-2">{result.validation.explanation}</p>
                       <div className="flex items-center gap-2 flex-wrap">
                         <Badge variant="outline">{result.validation.attack_type}</Badge>
-                        <span className="text-xs text-slate-400">
+                        <span className="text-xs text-muted-foreground">
                           {(result.validation.confidence * 100).toFixed(0)}% confidence
                         </span>
                       </div>
@@ -155,21 +151,21 @@ export function DefenseLab() {
 
                   {/* Defense Rule */}
                   {result.defense && (
-                    <Alert className="bg-green-950 border-green-800">
+                    <Alert className="border-primary bg-primary/10">
                       <AlertDescription>
                         <div className="flex items-center justify-between mb-2">
-                          <span className="font-semibold text-white flex items-center gap-2">
+                          <span className="font-semibold text-foreground flex items-center gap-2">
                             <Shield className="h-4 w-4" />
                             Defense Generated
                           </span>
-                          <Badge className="bg-green-600">Deployed</Badge>
+                          <Badge variant="default">Deployed</Badge>
                         </div>
-                        <div className="bg-slate-950 p-3 rounded-md mt-2 overflow-x-auto">
-                          <code className="text-xs text-green-300 font-mono whitespace-pre block">
+                        <div className="bg-background p-3 rounded-md mt-2 overflow-x-auto border">
+                          <code className="text-xs text-primary font-mono whitespace-pre block">
                             {result.defense.defense_code}
                           </code>
                         </div>
-                        <div className="mt-2 text-xs text-slate-400">
+                        <div className="mt-2 text-xs text-muted-foreground">
                           ID: {result.defense.rule_id} • Confidence: {(result.defense.confidence * 100).toFixed(0)}% •
                           Streamed to Redpanda
                         </div>
@@ -180,7 +176,7 @@ export function DefenseLab() {
               )}
             </>
           ) : (
-            <div className="text-center text-slate-400 py-12">Select a threat to begin</div>
+            <div className="text-center text-muted-foreground py-12">Select a threat to begin</div>
           )}
         </CardContent>
       </Card>

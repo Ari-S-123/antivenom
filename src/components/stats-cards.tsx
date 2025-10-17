@@ -25,26 +25,26 @@ export function StatsCards({ stats }: StatsCardsProps) {
   return (
     <div className="grid grid-cols-1 md:grid-cols-4 gap-4">
       {/* Threats Discovered */}
-      <Card className="bg-slate-800 border-slate-700">
+      <Card>
         <CardHeader className="flex flex-row items-center justify-between pb-2">
-          <CardTitle className="text-sm font-medium text-slate-300">Threats Discovered</CardTitle>
-          <Target className="h-4 w-4 text-slate-400" />
+          <CardTitle className="text-sm font-medium">Threats Discovered</CardTitle>
+          <Target className="h-4 w-4 text-muted-foreground" />
         </CardHeader>
         <CardContent>
-          <div className="text-2xl font-bold text-white">{stats.total_threats}</div>
-          <p className="text-xs text-slate-400">{stats.tested_threats} tested</p>
+          <div className="text-2xl font-bold text-foreground">{stats.total_threats}</div>
+          <p className="text-xs text-muted-foreground">{stats.tested_threats} tested</p>
         </CardContent>
       </Card>
 
       {/* Effective Attacks */}
-      <Card className="bg-slate-800 border-slate-700">
+      <Card>
         <CardHeader className="flex flex-row items-center justify-between pb-2">
-          <CardTitle className="text-sm font-medium text-slate-300">Effective Attacks</CardTitle>
-          <Zap className="h-4 w-4 text-amber-400" />
+          <CardTitle className="text-sm font-medium">Effective Attacks</CardTitle>
+          <Zap className="h-4 w-4 text-destructive" />
         </CardHeader>
         <CardContent>
-          <div className="text-2xl font-bold text-amber-400">{stats.effective_threats}</div>
-          <p className="text-xs text-slate-400">
+          <div className="text-2xl font-bold text-destructive">{stats.effective_threats}</div>
+          <p className="text-xs text-muted-foreground">
             {stats.total_threats > 0
               ? `${Math.round((stats.effective_threats / stats.total_threats) * 100)}% rate`
               : "No data"}
@@ -53,28 +53,28 @@ export function StatsCards({ stats }: StatsCardsProps) {
       </Card>
 
       {/* Defenses Active */}
-      <Card className="bg-slate-800 border-slate-700">
+      <Card>
         <CardHeader className="flex flex-row items-center justify-between pb-2">
-          <CardTitle className="text-sm font-medium text-slate-300">Defenses Active</CardTitle>
-          <Shield className="h-4 w-4 text-green-400" />
+          <CardTitle className="text-sm font-medium">Defenses Active</CardTitle>
+          <Shield className="h-4 w-4 text-primary" />
         </CardHeader>
         <CardContent>
-          <div className="text-2xl font-bold text-green-400">{stats.defenses_generated}</div>
-          <p className="text-xs text-slate-400">Auto-deployed</p>
+          <div className="text-2xl font-bold text-primary">{stats.defenses_generated}</div>
+          <p className="text-xs text-muted-foreground">Auto-deployed</p>
         </CardContent>
       </Card>
 
       {/* Stream Status */}
-      <Card className="bg-slate-800 border-slate-700">
+      <Card>
         <CardHeader className="flex flex-row items-center justify-between pb-2">
-          <CardTitle className="text-sm font-medium text-slate-300">Stream Status</CardTitle>
-          <Activity className="h-4 w-4 text-blue-400" />
+          <CardTitle className="text-sm font-medium">Stream Status</CardTitle>
+          <Activity className="h-4 w-4 text-accent-foreground" />
         </CardHeader>
         <CardContent>
-          <Badge className={stats.streaming_active ? "bg-green-500" : "bg-slate-500"}>
+          <Badge variant={stats.streaming_active ? "default" : "secondary"}>
             {stats.streaming_active ? "LIVE" : "OFFLINE"}
           </Badge>
-          <p className="text-xs text-slate-400 mt-1">Redpanda</p>
+          <p className="text-xs text-muted-foreground mt-1">Redpanda</p>
         </CardContent>
       </Card>
     </div>

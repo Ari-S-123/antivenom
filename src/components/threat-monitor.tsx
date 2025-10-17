@@ -54,45 +54,43 @@ export function ThreatMonitor() {
   }
 
   return (
-    <Card className="bg-slate-800 border-slate-700">
+    <Card>
       <CardHeader>
-        <CardTitle className="text-white">Discovered Threats</CardTitle>
-        <CardDescription className="text-slate-400">Attack patterns from security research (Apify)</CardDescription>
+        <CardTitle>Discovered Threats</CardTitle>
+        <CardDescription>Attack patterns from security research (Apify)</CardDescription>
       </CardHeader>
       <CardContent className="space-y-3">
         {loading ? (
-          <div className="text-center text-slate-400 py-8">Loading threats...</div>
+          <div className="text-center text-muted-foreground py-8">Loading threats...</div>
         ) : threats.length === 0 ? (
-          <div className="text-center text-slate-400 py-8">
+          <div className="text-center text-muted-foreground py-8">
             No threats discovered yet. Click &quot;Initialize System&quot; to seed data.
           </div>
         ) : (
           threats.map((threat) => (
-            <Card key={threat.id} className="bg-slate-900 border-slate-700">
+            <Card key={threat.id} className="bg-muted/50">
               <CardContent className="pt-6">
                 <div className="flex items-start justify-between gap-4">
                   <div className="flex-1 min-w-0">
                     <div className="flex items-center gap-2 mb-2">
-                      <h3 className="text-lg font-semibold text-white truncate">{threat.title}</h3>
+                      <h3 className="text-lg font-semibold text-foreground truncate">{threat.title}</h3>
                       <SourceIcon type={threat.source_type} />
                     </div>
 
-                    <div className="bg-slate-950 p-3 rounded-md mb-3 overflow-x-auto">
-                      <code className="text-sm text-amber-300 font-mono whitespace-pre-wrap break-words">
+                    <div className="bg-background p-3 rounded-md mb-3 overflow-x-auto border">
+                      <code className="text-sm text-destructive font-mono whitespace-pre-wrap break-words">
                         {threat.attack_pattern}
                       </code>
                     </div>
 
                     <div className="flex items-center gap-2 flex-wrap">
-                      <Badge variant="outline" className="text-slate-300 border-slate-600">
-                        {threat.source_type}
-                      </Badge>
+                      <Badge variant="outline">{threat.source_type}</Badge>
                       {threat.tested && (
                         <Badge variant={threat.effective ? "destructive" : "secondary"}>
                           {threat.effective ? "Effective" : "Ineffective"}
                         </Badge>
                       )}
-                      {!threat.tested && <Badge className="bg-yellow-600">Untested</Badge>}
+                      {!threat.tested && <Badge variant="secondary">Untested</Badge>}
                     </div>
                   </div>
 

@@ -8,6 +8,7 @@
 import { useState, useEffect } from "react";
 import { Tabs, TabsContent, TabsList, TabsTrigger } from "@/components/ui/tabs";
 import { Button } from "@/components/ui/button";
+import { Play } from "lucide-react";
 import { ThreatMonitor } from "@/components/threat-monitor";
 import { DefenseLab } from "@/components/defense-lab";
 import { LiveStream } from "@/components/live-stream";
@@ -57,21 +58,22 @@ export default function Dashboard() {
   }
 
   return (
-    <div className="min-h-screen bg-gradient-to-br from-slate-900 via-slate-800 to-slate-900">
+    <div className="min-h-screen bg-background">
       <div className="container mx-auto p-6 max-w-7xl">
         {/* Header */}
         <div className="mb-8">
           <div className="flex items-center justify-between">
             <div>
-              <h1 className="text-4xl font-bold text-white mb-2 bg-clip-text text-transparent bg-gradient-to-r from-blue-400 to-purple-400">
-                AntiVenom
+              <h1 className="text-4xl font-bold mb-2">
+                <span className="text-primary">Anti</span>
+                <span className="text-red-600">Venom</span>
               </h1>
-              <p className="text-slate-400">Autonomous AI Defense System</p>
-              <p className="text-xs text-slate-500 mt-1">Powered by Apify • OpenAI GPT-5 • Redpanda</p>
+              <p className="text-muted-foreground">Autonomous AI Defense System</p>
+              <p className="text-xs text-muted-foreground/70 mt-1">Powered by Apify • OpenAI GPT-5 • Redpanda</p>
             </div>
             {!seeded && (
-              <Button onClick={handleSeed} size="lg">
-                Initialize System
+              <Button onClick={handleSeed} size="lg" variant="outline" aria-label="Initialize System">
+                <Play className="h-6 w-6" /> Initialize System
               </Button>
             )}
           </div>
@@ -82,7 +84,7 @@ export default function Dashboard() {
 
         {/* Main Interface */}
         <Tabs defaultValue="threats" className="mt-6">
-          <TabsList className="grid w-full grid-cols-3 bg-slate-800">
+          <TabsList className="grid w-full grid-cols-3">
             <TabsTrigger value="threats">Threat Monitor</TabsTrigger>
             <TabsTrigger value="lab">Defense Lab</TabsTrigger>
             <TabsTrigger value="stream">Live Stream</TabsTrigger>
