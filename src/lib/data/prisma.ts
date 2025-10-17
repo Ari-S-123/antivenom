@@ -17,9 +17,11 @@ declare global {
  * Singleton Prisma client instance
  * Reuses existing instance in development to prevent connection pool exhaustion
  */
-export const prisma = global.prisma || new PrismaClient({
-  log: process.env.NODE_ENV === "development" ? ["error", "warn"] : ["error"]
-});
+export const prisma =
+  global.prisma ||
+  new PrismaClient({
+    log: process.env.NODE_ENV === "development" ? ["error", "warn"] : ["error"]
+  });
 
 if (process.env.NODE_ENV !== "production") {
   global.prisma = prisma;
@@ -31,4 +33,3 @@ if (process.env.NODE_ENV !== "production") {
 process.on("beforeExit", async () => {
   await prisma.$disconnect();
 });
-

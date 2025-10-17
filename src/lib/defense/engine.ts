@@ -120,4 +120,3 @@ export function clearRules(): void {
   compiled.clear();
   console.log("[Engine] Cleared all rules");
 }
-

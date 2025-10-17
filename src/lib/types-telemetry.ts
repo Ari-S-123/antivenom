@@ -40,4 +40,3 @@ export type FeedbackEvent = {
   /** Optional human notes */
   notes?: string;
 };
-

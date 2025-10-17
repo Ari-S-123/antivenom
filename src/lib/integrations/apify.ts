@@ -5,6 +5,7 @@
 
 import { ApifyClient } from "apify-client";
 import { prisma } from "@/lib/data/prisma";
+import { ApifyDatasetItem } from "@/lib/types";
 
 /**
  * Default sources for threat discovery
@@ -21,7 +22,7 @@ const DEFAULT_SOURCES: string[] = [
  * @returns {Promise<any[]>} Array of scraped items
  * @throws {Error} If APIFY_API_TOKEN is not set or actor fails
  */
-export async function runThreatScraper(sources: string[] = DEFAULT_SOURCES): Promise<any[]> {
+export async function runThreatScraper(sources: string[] = DEFAULT_SOURCES): Promise<ApifyDatasetItem[]> {
   const token = process.env.APIFY_API_TOKEN;
   if (!token) {
     throw new Error("APIFY_API_TOKEN environment variable not set");
@@ -40,7 +41,8 @@ export async function runThreatScraper(sources: string[] = DEFAULT_SOURCES): Pro
     }
   });
 
-  const { items } = await client.dataset(run.defaultDatasetId).listItems();
+  const list = await client.dataset(run.defaultDatasetId).listItems();
+  const items = (list?.items ?? []) as unknown as ApifyDatasetItem[];
   console.log(`[Apify] Scraper completed with ${items.length} items`);
 
   return items || [];
@@ -122,8 +124,16 @@ export async function ingestThreatsFromApify(): Promise<{ added: number; total: 
   let added = 0;
 
   for (const item of items) {
-    const url: string = item?.url || item?.request?.url || "";
-    const text: string = (item?.text || item?.pageFunctionResult || item?.markdown || "").toString();
+    const url: string =
+      typeof item?.url === "string" && item.url.trim() !== ""
+        ? item.url
+        : typeof item?.request?.url === "string"
+          ? item.request.url
+          : "";
+
+    const raw = item?.text ?? item?.pageFunctionResult ?? item?.markdown;
+    const text: string =
+      typeof raw === "string" ? raw : typeof raw === "number" ? String(raw) : raw != null ? JSON.stringify(raw) : "";
 
     if (!text) continue;
 

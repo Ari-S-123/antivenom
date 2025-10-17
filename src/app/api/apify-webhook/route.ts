@@ -7,6 +7,7 @@ import { NextResponse } from "next/server";
 import { ApifyClient } from "apify-client";
 import { extractThreatsFromText } from "@/lib/integrations/apify";
 import { prisma } from "@/lib/data/prisma";
+import { ApifyDatasetItem } from "@/lib/types";
 
 /**
  * POST /api/apify-webhook
@@ -32,13 +33,22 @@ export async function POST(request: Request) {
     }
 
     const client = new ApifyClient({ token });
-    const { items } = await client.dataset(datasetId).listItems();
+    const list = await client.dataset(datasetId).listItems();
+    const items = (list?.items ?? []) as unknown as ApifyDatasetItem[];
 
     let added = 0;
 
     for (const item of items) {
-      const url: string = item?.url || item?.request?.url || "";
-      const text: string = (item?.text || item?.pageFunctionResult || item?.markdown || "").toString();
+      const url: string =
+        typeof item?.url === "string" && item.url.trim() !== ""
+          ? item.url
+          : typeof item?.request?.url === "string"
+            ? item.request.url
+            : "";
+
+      const raw = item?.text ?? item?.pageFunctionResult ?? item?.markdown;
+      const text: string =
+        typeof raw === "string" ? raw : typeof raw === "number" ? String(raw) : raw != null ? JSON.stringify(raw) : "";
 
       if (!text) continue;
 

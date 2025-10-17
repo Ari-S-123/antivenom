@@ -8,6 +8,26 @@
 export type SourceType = "github" | "reddit" | "cve";
 
 /**
+ * Shape of items returned by Apify dataset for our ingestion flows.
+ * Only properties that we consume are typed; all others are ignored.
+ */
+export type ApifyDatasetItem = {
+  /** Direct URL of the scraped page, when present */
+  url?: string;
+  /** Original request metadata from Apify, if available */
+  request?: {
+    /** URL of the request, used as a fallback when item.url is missing */
+    url?: string;
+  };
+  /** Extracted text content from scraper */
+  text?: unknown;
+  /** Alternative payload some actors emit */
+  pageFunctionResult?: unknown;
+  /** Markdown content if scraper emits it */
+  markdown?: unknown;
+};
+
+/**
  * Attack types for prompt injection threats
  */
 export type AttackType = "instruction_override" | "role_manipulation" | "prompt_extraction" | "encoding_trick";

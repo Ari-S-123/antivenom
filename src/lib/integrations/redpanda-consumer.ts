@@ -89,4 +89,3 @@ export async function stopDefenseStreaming(): Promise<void> {
 // Graceful shutdown
 process.on("SIGTERM", stopDefenseStreaming);
 process.on("SIGINT", stopDefenseStreaming);
-
