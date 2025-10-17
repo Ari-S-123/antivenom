@@ -4,7 +4,10 @@
  */
 
 import { NextResponse } from "next/server";
-import { db } from "@/lib/data/store";
+import { prisma } from "@/lib/data/prisma";
+import { isProducerConnected } from "@/lib/integrations/redpanda";
+import { ensureDefenseStreaming, isConsumerConnected } from "@/lib/integrations/redpanda-consumer";
+import { ensureRefinementLoop } from "@/lib/integrations/refiner-consumer";
 
 /**
  * GET /api/stats
@@ -13,15 +16,27 @@ import { db } from "@/lib/data/store";
  */
 export async function GET() {
   try {
-    const threats = db.threats.getAll();
-    const defenses = db.defenses.getAll();
+    // Ensure defense consumer and refiner are running
+    await ensureDefenseStreaming();
+    await ensureRefinementLoop();
+
+    // Get counts from Postgres
+    const [totalThreats, testedThreats, effectiveThreats, totalDefenses] = await Promise.all([
+      prisma.threat.count(),
+      prisma.threat.count({ where: { tested: true } }),
+      prisma.threat.count({ where: { effective: true } }),
+      prisma.defenseRule.count()
+    ]);
+
+    // Check real streaming status
+    const streaming = isProducerConnected() || isConsumerConnected();
 
     return NextResponse.json({
-      total_threats: threats.length,
-      tested_threats: threats.filter((t) => t.tested).length,
-      effective_threats: threats.filter((t) => t.effective === true).length,
-      defenses_generated: defenses.length,
-      streaming_active: true // Always true when system is running
+      total_threats: totalThreats,
+      tested_threats: testedThreats,
+      effective_threats: effectiveThreats,
+      defenses_generated: totalDefenses,
+      streaming_active: streaming
     });
   } catch (error) {
     console.error("[API] Error fetching stats:", error);

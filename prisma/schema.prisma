@@ -1,0 +1,130 @@
+// Prisma schema for AntiVenom autonomous AI defense platform
+// Uses PostgreSQL 18 for persistence
+
+generator client {
+  provider = "prisma-client-js"
+}
+
+datasource db {
+  provider = "postgresql"
+  url      = env("DATABASE_URL")
+}
+
+/// Discovered threat patterns from security research
+model Threat {
+  /// Auto-incrementing unique identifier
+  id             Int      @id @default(autoincrement())
+  /// Human-readable threat title
+  title          String
+  /// The actual attack pattern text
+  attack_pattern String   @unique
+  /// URL where threat was discovered
+  source_url     String
+  /// Source type (github, reddit, cve)
+  source_type    String
+  /// ISO 8601 timestamp of discovery
+  discovered_at  DateTime
+  /// Whether threat has been validated
+  tested         Boolean  @default(false)
+  /// If tested, whether it was effective
+  effective      Boolean?
+  /// Timestamp of record creation
+  created_at     DateTime @default(now())
+  /// Timestamp of last update
+  updated_at     DateTime @updatedAt
+
+  /// Defense rules generated for this threat
+  defenses DefenseRule[]
+
+  @@index([tested, effective])
+  @@index([source_type])
+  @@index([discovered_at])
+}
+
+/// Generated defense rules with machine-applyable specifications
+model DefenseRule {
+  /// Unique rule identifier (format: def_{timestamp})
+  rule_id      String   @id
+  /// Associated threat ID
+  threat_id    Int
+  /// Attack type classification
+  attack_type  String
+  /// Human-readable Python defense code
+  defense_code String
+  /// Confidence score (0-1)
+  confidence   Float
+  /// ISO 8601 timestamp of rule creation
+  created_at   DateTime
+  /// Whether rule has been deployed to Redpanda
+  deployed     Boolean  @default(true)
+  /// Machine-applyable rule specification (JSON)
+  rule_spec    Json
+  /// Timestamp of record creation
+  db_created_at DateTime @default(now())
+  /// Timestamp of last update
+  updated_at   DateTime @updatedAt
+
+  /// Associated threat
+  threat Threat @relation(fields: [threat_id], references: [id], onDelete: Cascade)
+
+  /// Detection events using this rule
+  detections DetectionEvent[]
+  /// Feedback events for this rule
+  feedback   FeedbackEvent[]
+
+  @@index([threat_id])
+  @@index([attack_type])
+  @@index([created_at])
+}
+
+/// Detection events from the agent enforcement endpoint
+model DetectionEvent {
+  /// Unique event identifier (format: det_{timestamp}_{random})
+  event_id      String   @id
+  /// ISO 8601 timestamp of detection
+  timestamp     DateTime
+  /// Preview of input text (max 240 chars)
+  input_preview String
+  /// Whether input was allowed
+  allowed       Boolean
+  /// Rule ID that triggered (if blocked)
+  rule_id       String?
+  /// Regex matches (JSON array)
+  matches       Json?
+  /// Human-readable reason
+  reason        String?
+  /// Timestamp of record creation
+  created_at    DateTime @default(now())
+
+  /// Associated defense rule (if blocked)
+  rule DefenseRule? @relation(fields: [rule_id], references: [rule_id], onDelete: SetNull)
+
+  @@index([timestamp])
+  @@index([rule_id])
+  @@index([allowed])
+}
+
+/// Feedback events for labeling detection quality
+model FeedbackEvent {
+  /// Unique event identifier (format: fb_{timestamp}_{random})
+  event_id      String   @id
+  /// ISO 8601 timestamp of feedback
+  timestamp     DateTime
+  /// Rule ID being evaluated
+  rule_id       String
+  /// Preview of input text
+  input_preview String
+  /// Feedback label (false_positive, false_negative, true_positive, true_negative)
+  label         String
+  /// Optional human notes
+  notes         String?
+  /// Timestamp of record creation
+  created_at    DateTime @default(now())
+
+  /// Associated defense rule
+  rule DefenseRule @relation(fields: [rule_id], references: [rule_id], onDelete: Cascade)
+
+  @@index([timestamp])
+  @@index([rule_id])
+  @@index([label])
+}

@@ -4,10 +4,10 @@
  */
 
 import { NextResponse } from "next/server";
-import { validateAttack, generateDefense } from "@/lib/integrations/openai";
+import { validateAttack, generateDefense, generateDefenseSpec } from "@/lib/integrations/openai";
 import { publishDefense } from "@/lib/integrations/redpanda";
-import { db } from "@/lib/data/store";
-import type { DefenseRule } from "@/lib/types";
+import { prisma } from "@/lib/data/prisma";
+import type { DefenseRule, DefenseRuleSpec } from "@/lib/types";
 
 /**
  * POST /api/test-attack
@@ -32,10 +32,13 @@ export async function POST(request: Request) {
 
     console.log(`[API] Validation complete: ${validation.is_effective ? "EFFECTIVE" : "INEFFECTIVE"}`);
 
-    // Update threat status in store
-    db.threats.update(threat_id, {
-      tested: true,
-      effective: validation.is_effective
+    // Update threat status in database
+    await prisma.threat.update({
+      where: { id: threat_id },
+      data: {
+        tested: true,
+        effective: validation.is_effective
+      }
     });
 
     // If attack is not effective, return early
@@ -43,28 +46,58 @@ export async function POST(request: Request) {
       return NextResponse.json({
         threat_id,
         validation,
-        defense: null,
-        message: "Attack ineffective - no defense needed"
+        defense: undefined,
+        message: "Attack ineffective - no defense generated"
       });
     }
 
-    // Step 2: Generate defense code with GPT-5
-    console.log(`[API] Generating defense for ${validation.attack_type}`);
+    // Step 2a: Generate machine-applyable spec for defense engine
+    console.log(`[API] Generating defense spec for ${validation.attack_type}`);
+    const partialSpec = await generateDefenseSpec(attack_pattern, validation.attack_type);
+
+    // Step 2b: Generate Python code for human review
+    console.log(`[API] Generating defense code for ${validation.attack_type}`);
     const defenseData = await generateDefense(attack_pattern, validation.attack_type);
 
-    // Create defense rule
+    const rule_id = `def_${Date.now()}`;
+    const created_at = new Date();
+
+    // Construct complete rule spec
+    const rule_spec: DefenseRuleSpec = {
+      rule_id,
+      attack_type: partialSpec.attack_type,
+      patterns: partialSpec.patterns,
+      flags: partialSpec.flags ?? "i",
+      block_if_matches: partialSpec.block_if_matches,
+      description: partialSpec.description,
+      version: "1.0.0"
+    };
+
+    // Create defense rule object
     const defense: DefenseRule = {
-      rule_id: `def_${Date.now()}`,
+      rule_id,
       threat_id,
       attack_type: validation.attack_type,
       defense_code: defenseData.defense_code,
       confidence: defenseData.confidence,
-      created_at: new Date().toISOString(),
-      deployed: true
+      created_at: created_at.toISOString(),
+      deployed: true,
+      rule_spec
     };
 
-    // Store defense
-    db.defenses.add(defense);
+    // Store defense in Postgres
+    await prisma.defenseRule.create({
+      data: {
+        rule_id,
+        threat_id,
+        attack_type: validation.attack_type,
+        defense_code: defenseData.defense_code,
+        confidence: defenseData.confidence,
+        created_at,
+        deployed: true,
+        rule_spec: rule_spec as any // Prisma Json type
+      }
+    });
 
     // Step 3: Stream defense to Redpanda
     console.log(`[API] Publishing defense ${defense.rule_id} to Redpanda`);

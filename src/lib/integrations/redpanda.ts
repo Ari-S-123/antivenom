@@ -21,6 +21,19 @@ const kafka = new Kafka({
 let producer: Producer | null = null;
 
 /**
+ * Producer connection state
+ */
+let producerConnected = false;
+
+/**
+ * Check if producer has an active connection
+ * @returns {boolean} True if producer is connected
+ */
+export function isProducerConnected(): boolean {
+  return producerConnected;
+}
+
+/**
  * Publish a defense rule to the Redpanda topic
  * @param {DefenseRule} defense - Defense rule to publish
  * @returns {Promise<void>}
@@ -32,6 +45,7 @@ export async function publishDefense(defense: DefenseRule): Promise<void> {
     if (!producer) {
       producer = kafka.producer();
       await producer.connect();
+      producerConnected = true;
       console.log("[Redpanda] Producer connected");
     }
 
@@ -49,6 +63,7 @@ export async function publishDefense(defense: DefenseRule): Promise<void> {
     console.log(`[Redpanda] Published defense rule: ${defense.rule_id} for threat ${defense.threat_id}`);
   } catch (error) {
     console.error("[Redpanda] Error publishing defense:", error);
+    producerConnected = false;
     // Don't throw - allow the API to return success even if Redpanda is unavailable
     // This provides graceful degradation
   }

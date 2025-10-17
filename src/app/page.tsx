@@ -24,6 +24,7 @@ import type { Stats } from "@/lib/types";
 export default function Dashboard() {
   const [stats, setStats] = useState<Stats | null>(null);
   const [seeded, setSeeded] = useState(false);
+  const [ingesting, setIngesting] = useState(false);
 
   useEffect(() => {
     loadStats();
@@ -57,6 +58,28 @@ export default function Dashboard() {
     }
   }
 
+  /**
+   * Ingest live threats from Apify
+   */
+  async function handleIngest() {
+    setIngesting(true);
+    try {
+      const res = await fetch("/api/threats/ingest", { method: "POST" });
+      const data = await res.json();
+      if (res.ok) {
+        alert(`Ingested ${data.added} new threats! Total: ${data.total}`);
+        await loadStats();
+      } else {
+        throw new Error(data.error || "Ingest failed");
+      }
+    } catch (error) {
+      console.error("Error ingesting threats:", error);
+      alert(`Failed to ingest threats: ${error instanceof Error ? error.message : "Unknown error"}`);
+    } finally {
+      setIngesting(false);
+    }
+  }
+
   return (
     <div className="min-h-screen bg-background">
       <div className="container mx-auto p-6 max-w-7xl">
@@ -71,11 +94,22 @@ export default function Dashboard() {
               <p className="text-muted-foreground">Autonomous AI Defense System</p>
               <p className="text-xs text-muted-foreground/70 mt-1">Powered by Apify • OpenAI GPT-5 • Redpanda</p>
             </div>
-            {!seeded && (
-              <Button onClick={handleSeed} size="lg" variant="outline" aria-label="Initialize System">
-                <Play className="h-6 w-6" /> Initialize System
+            <div className="flex gap-2">
+              {!seeded && (
+                <Button onClick={handleSeed} size="lg" variant="outline" aria-label="Initialize System">
+                  <Play className="h-6 w-6" /> Initialize System
+                </Button>
+              )}
+              <Button
+                onClick={handleIngest}
+                size="lg"
+                variant="default"
+                disabled={ingesting}
+                aria-label="Ingest Live Threats"
+              >
+                {ingesting ? "Ingesting..." : "Ingest Live Threats"}
               </Button>
-            )}
+            </div>
           </div>
         </div>
 

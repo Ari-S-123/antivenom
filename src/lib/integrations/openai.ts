@@ -87,3 +87,66 @@ The function should be production-ready and well-commented.`,
 
   return object;
 }
+
+/**
+ * Generate a machine-applyable rule spec for the defense engine
+ * This returns regex patterns and metadata we can compile in TypeScript
+ * @param {string} pattern - Example attack pattern
+ * @param {AttackType} attackType - Type of attack to defend against
+ * @returns {Promise<Omit<DefenseRuleSpec, "rule_id" | "version">>} Generated rule spec (caller adds rule_id/version)
+ */
+export async function generateDefenseSpec(
+  pattern: string,
+  attackType: AttackType
+): Promise<{
+  description: string;
+  block_if_matches: boolean;
+  flags?: string;
+  patterns: string[];
+  attack_type: AttackType;
+}> {
+  const { object } = await generateObject({
+    model: openai("gpt-5"),
+    schema: z.object({
+      description: z.string().describe("Concise human-readable description of what is blocked"),
+      block_if_matches: z.boolean().describe("True if any single match should block, false only for special cases"),
+      flags: z.string().optional().describe("Regex flags string (default 'i')"),
+      patterns: z
+        .array(z.string().min(1))
+        .min(3)
+        .max(8)
+        .describe("Generalized regex patterns that catch realistic variants")
+    }),
+    prompt: `You are generating an enforceable rule for a prompt injection defense engine.
+
+Attack example:
+"${pattern}"
+
+Attack type: ${attackType}
+
+Return JSON with:
+- description: concise human-readable description of what is blocked
+- block_if_matches: true if any single match should block, false only for special cases
+- flags: a regex flags string (default "i" for case-insensitive)
+- patterns: 3-8 generalized regex patterns that catch realistic variants (be conservative; avoid catastrophic backtracking)
+
+Requirements:
+- Patterns must be safe and efficient JavaScript regex
+- Do NOT include code or function definitions
+- Focus on detecting the attack pattern, not blocking it
+- Handle common evasion techniques (spacing, case, encoding variations)
+- Avoid overly broad patterns that would cause false positives
+
+Example patterns for instruction override:
+["ignore\\s+(?:all\\s+)?(?:previous\\s+)?instructions?", "disregard\\s+(?:the\\s+)?(?:above|prior)"]`,
+    temperature: 0.2
+  });
+
+  return {
+    description: object.description,
+    block_if_matches: object.block_if_matches,
+    flags: object.flags,
+    patterns: object.patterns,
+    attack_type: attackType
+  };
+}
