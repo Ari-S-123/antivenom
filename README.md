@@ -4,6 +4,13 @@
 
 Built for "The Future of Agents" Hackathon (October 17, 2025)
 
+## TODO
+
+- More testing and bug fixing.
+- More automation.
+- More comprehensive web scraping.
+- Better UI/UX.
+
 ## 🏆 Sponsor Technologies
 
 - **Apify**: Threat intelligence gathering from GitHub/Reddit
